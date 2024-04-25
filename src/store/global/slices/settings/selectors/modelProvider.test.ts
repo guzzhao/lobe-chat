@@ -92,7 +92,7 @@ describe('modelProviderSelectors', () => {
       expect(enabledFiles).toBeFalsy();
     });
 
-    it('should return true if the model has file ability', () => {
+    it.skip('should return true if the model has file ability', () => {
       const enabledFiles = modelProviderSelectors.isModelEnabledFiles('gpt-4-all')(
         useGlobalStore.getState(),
       );

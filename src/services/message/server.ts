@@ -9,7 +9,7 @@ export class ServerService implements IMessageService {
   createMessage: IMessageService['createMessage'] = async ({ sessionId, ...params }) => {
     return lambdaClient.message.createMessage.mutate({
       ...params,
-      sessionId: this.toDbSessionId(sessionId),
+      sessionId: sessionId ? this.toDbSessionId(sessionId) : undefined,
     });
   };
 
@@ -17,12 +17,21 @@ export class ServerService implements IMessageService {
     return lambdaClient.message.batchCreateMessages.mutate(messages);
   };
 
-  getMessages: IMessageService['getMessages'] = async (sessionId, topicId) => {
+  getMessages: IMessageService['getMessages'] = async (sessionId, topicId, groupId) => {
     const data = await lambdaClient.message.getMessages.query({
+      groupId,
       sessionId: this.toDbSessionId(sessionId),
       topicId,
     });
 
+    return data as unknown as ChatMessage[];
+  };
+
+  getGroupMessages: IMessageService['getGroupMessages'] = async (groupId, topicId) => {
+    const data = await lambdaClient.message.getMessages.query({
+      groupId,
+      topicId,
+    });
     return data as unknown as ChatMessage[];
   };
 
@@ -84,6 +93,10 @@ export class ServerService implements IMessageService {
     return lambdaClient.message.updatePluginError.mutate({ id, value: error as any });
   };
 
+  updateMessageRAG: IMessageService['updateMessageRAG'] = async (id, data) => {
+    return lambdaClient.message.updateMessageRAG.mutate({ id, value: data });
+  };
+
   removeMessage: IMessageService['removeMessage'] = async (id) => {
     return lambdaClient.message.removeMessage.mutate({ id });
   };
@@ -98,6 +111,13 @@ export class ServerService implements IMessageService {
   ) => {
     return lambdaClient.message.removeMessagesByAssistant.mutate({
       sessionId: this.toDbSessionId(sessionId),
+      topicId,
+    });
+  };
+
+  removeMessagesByGroup: IMessageService['removeMessagesByGroup'] = async (groupId, topicId) => {
+    return lambdaClient.message.removeMessagesByGroup.mutate({
+      groupId,
       topicId,
     });
   };

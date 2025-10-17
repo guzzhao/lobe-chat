@@ -15,7 +15,7 @@ import { LobeAgentChatConfig, LobeAgentConfig } from '@/types/agent';
 import { KnowledgeItem } from '@/types/knowledgeBase';
 import { merge } from '@/utils/merge';
 
-import { AgentStore } from '../../store';
+import type { AgentStore } from '../../store';
 import { agentSelectors } from './selectors';
 
 /**
@@ -160,8 +160,10 @@ export const createChatSlice: StateCreator<
   },
   useFetchAgentConfig: (isLogin, sessionId) =>
     useClientDataSWR<LobeAgentConfig>(
-      isLogin ? [FETCH_AGENT_CONFIG_KEY, sessionId] : null,
-      ([, id]: string[]) => sessionService.getSessionConfig(id),
+      isLogin && !sessionId.startsWith('cg_')
+        ? ([FETCH_AGENT_CONFIG_KEY, sessionId] as const)
+        : null,
+      ([, id]: readonly [string, string]) => sessionService.getSessionConfig(id),
       {
         onSuccess: (data) => {
           get().internal_dispatchAgentMap(sessionId, data, 'fetch');

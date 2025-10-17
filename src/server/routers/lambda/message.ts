@@ -7,6 +7,7 @@ import { authedProcedure, publicProcedure, router } from '@/libs/trpc/lambda';
 import { serverDatabase } from '@/libs/trpc/lambda/middleware';
 import { FileService } from '@/server/services/file';
 import { ChatMessage } from '@/types/message';
+import { UpdateMessageRAGParamsSchema } from '@/types/message/rag';
 import { BatchTaskResult } from '@/types/service';
 
 type ChatMessageList = ChatMessage[];
@@ -92,6 +93,7 @@ export const messageRouter = router({
     .input(
       z.object({
         current: z.number().optional(),
+        groupId: z.string().nullable().optional(),
         pageSize: z.number().optional(),
         sessionId: z.string().nullable().optional(),
         topicId: z.string().nullable().optional(),
@@ -138,12 +140,28 @@ export const messageRouter = router({
   removeMessagesByAssistant: messageProcedure
     .input(
       z.object({
+        groupId: z.string().nullable().optional(),
         sessionId: z.string().nullable().optional(),
         topicId: z.string().nullable().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return ctx.messageModel.deleteMessagesBySession(input.sessionId, input.topicId);
+      return ctx.messageModel.deleteMessagesBySession(
+        input.sessionId,
+        input.topicId,
+        input.groupId,
+      );
+    }),
+
+  removeMessagesByGroup: messageProcedure
+    .input(
+      z.object({
+        groupId: z.string(),
+        topicId: z.string().nullable().optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return ctx.messageModel.deleteMessagesBySession(null, input.topicId, input.groupId);
     }),
 
   searchMessages: messageProcedure
@@ -172,6 +190,12 @@ export const messageRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       return ctx.messageModel.updateMessagePlugin(input.id, input.value);
+    }),
+
+  updateMessageRAG: messageProcedure
+    .input(UpdateMessageRAGParamsSchema)
+    .mutation(async ({ input, ctx }) => {
+      await ctx.messageModel.updateMessageRAG(input.id, input.value);
     }),
 
   updatePluginError: messageProcedure

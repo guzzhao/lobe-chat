@@ -4,8 +4,10 @@
 import { publicProcedure, router } from '@/libs/trpc/lambda';
 
 import { agentRouter } from './agent';
+import { aiChatRouter } from './aiChat';
 import { aiModelRouter } from './aiModel';
 import { aiProviderRouter } from './aiProvider';
+import { apiKeyRouter } from './apiKey';
 import { chunkRouter } from './chunk';
 import { configRouter } from './config';
 import { documentRouter } from './document';
@@ -14,6 +16,7 @@ import { fileRouter } from './file';
 import { generationRouter } from './generation';
 import { generationBatchRouter } from './generationBatch';
 import { generationTopicRouter } from './generationTopic';
+import { groupRouter } from './group';
 import { imageRouter } from './image';
 import { importerRouter } from './importer';
 import { knowledgeBaseRouter } from './knowledgeBase';
@@ -29,8 +32,10 @@ import { userRouter } from './user';
 
 export const lambdaRouter = router({
   agent: agentRouter,
+  aiChat: aiChatRouter,
   aiModel: aiModelRouter,
   aiProvider: aiProviderRouter,
+  apiKey: apiKeyRouter,
   chunk: chunkRouter,
   config: configRouter,
   document: documentRouter,
@@ -39,6 +44,7 @@ export const lambdaRouter = router({
   generation: generationRouter,
   generationBatch: generationBatchRouter,
   generationTopic: generationTopicRouter,
+  group: groupRouter,
   healthcheck: publicProcedure.query(() => "i'm live!"),
   image: imageRouter,
   importer: importerRouter,
